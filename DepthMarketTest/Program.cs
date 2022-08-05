@@ -1,24 +1,22 @@
 using DepthMarketTest.Base;
-using DepthMarketTest.Models;
+using DepthMarketTest.Repository;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<MongoDBSettings>(
+    builder.Configuration.GetSection("MongoDBSettings")
+);
+
+builder.Services.AddSingleton<IMongoDatabase>(options => {
+    var settings = builder.Configuration.GetSection("MongoDBSettings").Get<MongoDBSettings>();
+    var client = new MongoClient(settings.ConnectionString);
+    return client.GetDatabase(settings.DatabaseName);
+});
+
+builder.Services.AddSingleton<IOrdersRepository, OrdersRepository>();
+
 // Add services to the container.
-
-var connectionString = builder.Configuration.GetConnectionString("mongo");
-
-builder.Services.AddTransient<IMongoClient>(provider => new MongoClient(connectionString));
-
-builder.Services.AddSingleton<IMongoDbContext<OrderModel>>(provider => new MongodbContext<OrderModel>(
-    new MongodbSettings()
-    {
-        ConnectionString = connectionString,
-        CollectionName = builder.Configuration["Person:Collection"],
-        DbName = builder.Configuration["Person:Database"]
-    }, provider.GetRequiredService<IMongoClient>()));
-
-builder.Services.AddSingleton<MongodbWorker<OrderModel>>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
