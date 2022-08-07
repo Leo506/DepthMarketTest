@@ -1,6 +1,5 @@
 ﻿using DepthMarketTest.Models;
 using DepthMarketTest.Repository;
-using System;
 
 namespace DepthMarketTest.Services
 {
@@ -28,23 +27,23 @@ namespace DepthMarketTest.Services
                 {
                     var matchedMarketModel = await BidFullExecSearchAsync(order, relevantBids);
                     if(matchedMarketModel == null)
-                    {
+                    {   
                         order.Status = OrderStatus.Active;
                         await _ordersRepository.UpdateAsync(order);
+                        //create market model based on order and save in repo
                     }
                     else
                     {
                         if (matchedMarketModel.OnlyFullExecution)
                         {
-                            if(matchedMarketModel.Volume == order.Volume)
-                            {
-                                var matchedOrder =await _ordersRepository.GetByIdAsync(matchedMarketModel.Id);
-
-                                matchedOrder.Status = OrderStatus.Executing;
-                                order.Status = OrderStatus.Executing;
-
-                                await _bidMarketRepository.DeleteAsync(matchedOrder.Id);
-                            }
+                             var matchedOrder = await _ordersRepository.GetByIdAsync(matchedMarketModel.Id);
+                             matchedOrder.Status = OrderStatus.Executing;
+                             order.Status = OrderStatus.Executing;
+                             await _bidMarketRepository.DeleteAsync(matchedOrder.Id);
+                        }
+                        else
+                        {
+                            // work with partial orders
                         }
                     }
                 }
@@ -65,9 +64,17 @@ namespace DepthMarketTest.Services
                 }
             }
         }
-        private async Task<MarketModel> BidFullExecSearchAsync(OrderModel model, List<MarketModel> relevantMarketList)
+        private async Task<MarketModel?> BidFullExecSearchAsync(OrderModel model, List<MarketModel> relevantMarketList)
         {
-            throw new NotImplementedException();
+            foreach (var listItem in relevantMarketList)
+            {
+                if (listItem.OnlyFullExecution && model.Volume == listItem.Volume)
+                {
+                    return listItem;
+                }
+                return listItem;
+            }
+            return null;
         }
         private async Task<MarketModel> BidPartialExecSearchAsync()
         {
