@@ -18,7 +18,8 @@ namespace DepthMarketTest.ViewModels
 
         public bool? OnlyFullExecution { get; set; }
 
-        public DateTime? Deadline { get; set; }
+        public DateTime LimitTime { get; set; }
+        public DateTime SubmittionTime { get; set; }
         public OrderStatus Status { get; set; }
     }
 }

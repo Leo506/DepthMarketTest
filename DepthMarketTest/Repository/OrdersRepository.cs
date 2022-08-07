@@ -1,4 +1,5 @@
 ﻿using DepthMarketTest.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace DepthMarketTest.Repository
@@ -10,6 +11,7 @@ namespace DepthMarketTest.Repository
         public OrdersRepository(IMongoDatabase mongoDatabase)
         {
             _ordersCollection = mongoDatabase.GetCollection<OrderModel>("orders");
+
         }
         public async Task<string> CreateNewAsync(OrderModel newOrder)
         {

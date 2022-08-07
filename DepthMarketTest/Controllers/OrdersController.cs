@@ -1,9 +1,7 @@
-using DepthMarketTest.Base;
 using DepthMarketTest.Models;
 using DepthMarketTest.Repository;
 using DepthMarketTest.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 
 namespace DepthMarketTest.Controllers
 {
@@ -15,6 +13,18 @@ namespace DepthMarketTest.Controllers
         public OrdersController(IOrdersRepository ordersRepository)
         {
             _ordersRepository = ordersRepository;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var people = await _ordersRepository.GetAllAsync();
+            if (people == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(people);
         }
 
         [HttpGet]
@@ -41,11 +51,13 @@ namespace DepthMarketTest.Controllers
                 Volume = model.Volume,
                 Price = model.Price,
                 InvestorId = model.InvestorId,
-                Deadline = new BsonDateTime(DateTime.Now),
-                Status = model.Status
+                LimitTime = model.LimitTime,
+                SubmissionTime = model.SubmittionTime,
+                Status = model.Status,
+                OnlyFullExecution = model.OnlyFullExecution
             };
-            await _ordersRepository.CreateNewAsync(orderModel);
-            return CreatedAtAction(nameof(Get), new { id = orderModel.Id }, orderModel);
+            var orderId = await _ordersRepository.CreateNewAsync(orderModel);
+            return CreatedAtAction(nameof(Get), new { id = orderId }, orderModel);
         }
 
         [HttpPut]
@@ -63,9 +75,10 @@ namespace DepthMarketTest.Controllers
                 Volume = model.Volume,
                 Price = model.Price,
                 InvestorId = model.InvestorId,
-                OnlyFullExecution = model.OnlyFullExecution,
-                Deadline = model.Deadline,
-                Status = model.Status
+                LimitTime = model.LimitTime,
+                SubmissionTime = model.SubmittionTime,
+                Status = model.Status,
+                OnlyFullExecution = model.OnlyFullExecution
             };
             await _ordersRepository.UpdateAsync(orderModel);
             return NoContent();

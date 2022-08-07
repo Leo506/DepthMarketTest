@@ -15,6 +15,8 @@ builder.Services.AddSingleton<IMongoDatabase>(options => {
 });
 
 builder.Services.AddSingleton<IOrdersRepository, OrdersRepository>();
+builder.Services.AddSingleton<IAskMarketRepository, AskMarketRepository>();
+builder.Services.AddSingleton<IBidMarketRepository, BidMarketRepository>();
 
 // Add services to the container.
 
