@@ -16,7 +16,7 @@ namespace DepthMarketTest.ViewModels
 
         public string InvestorId { get; set; }
 
-        public bool? OnlyFullExecution { get; set; }
+        public bool OnlyFullExecution { get; set; }
 
         public DateTime LimitTime { get; set; }
         public DateTime SubmittionTime { get; set; }

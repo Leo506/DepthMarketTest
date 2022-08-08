@@ -10,9 +10,17 @@ namespace DepthMarketTest.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrdersRepository _ordersRepository;
-        public OrdersController(IOrdersRepository ordersRepository)
+        private readonly IAskMarketRepository _askMarketRepository;
+        private readonly IBidMarketRepository _bidMarketRepository;
+        public OrdersController(
+            IOrdersRepository ordersRepository,
+            IAskMarketRepository askMarketRepository,
+            IBidMarketRepository bidMarketRepository
+            )
         {
             _ordersRepository = ordersRepository;
+            _askMarketRepository = askMarketRepository;
+            _bidMarketRepository = bidMarketRepository;
         }
 
         [HttpGet]
