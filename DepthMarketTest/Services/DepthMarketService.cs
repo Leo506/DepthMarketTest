@@ -46,7 +46,7 @@ namespace DepthMarketTest.Services
                     }
                     else
                     {
-                        var matchedOrder = await _ordersRepository.GetByIdAsync(matchedMarketModel.Id);
+                        var matchedOrder = await _ordersRepository.GetByIdAsync(matchedMarketModel.OrderId);
                         if (matchedMarketModel.OnlyFullExecution)
                         {
                             matchedOrder.Status = OrderStatus.Executing;
@@ -59,11 +59,10 @@ namespace DepthMarketTest.Services
                         }
                         else
                         {
-                            var newVolume = matchedOrder.Volume - order.Volume;
+                            var newVolume = matchedMarketModel.Volume - order.Volume;
                             if (newVolume != 0)
                             {
-                                matchedOrder.Volume = newVolume;
-                                await _ordersRepository.UpdateAsync(matchedOrder);
+                                
                                 matchedMarketModel.Volume = newVolume;
                                 await _bidMarketRepository.UpdateAsync(matchedMarketModel);
 
@@ -103,22 +102,21 @@ namespace DepthMarketTest.Services
                             SubmissionTime = order.SubmissionTime
                         };
                         await _askMarketRepository.CreateNewAsync(marketModel);
-                    } // correct
+                    } 
                     else
                     {
+                        double orderVolume = order.Volume;
                         foreach(var matchedMarketModel in matchedMarketModels)
                         {
                             if (!matchedMarketModel.OnlyFullExecution &&
                                 matchedMarketModel.Volume > order.Volume)
                             {
-                                order.Status = OrderStatus.Executing;
+                                order.Status = OrderStatus.Executing; // status problem in partial large orders
                                 await _ordersRepository.UpdateAsync(order);
-
-                                var matchedOrder = await _ordersRepository.GetByIdAsync(matchedMarketModel.OrderId);
-                                matchedOrder.Volume -= order.Volume;
-                                await _ordersRepository.UpdateAsync(matchedOrder);
-                                matchedMarketModel.Volume = matchedOrder.Volume;
+                 
+                                matchedMarketModel.Volume -= orderVolume;
                                 await _bidMarketRepository.UpdateAsync(matchedMarketModel);
+                                // send in candidates
                             }
                             else
                             {
@@ -126,13 +124,14 @@ namespace DepthMarketTest.Services
 
                                 matchedOrder.Status = OrderStatus.Executing;
                                 await _ordersRepository.UpdateAsync(matchedOrder);
-
-                                await _bidMarketRepository.DeleteAsync(matchedMarketModel.Id);
+                                orderVolume -= matchedMarketModel.Volume;
                                 // send in candidates
+                                await _bidMarketRepository.DeleteAsync(matchedMarketModel.Id);
+                                
                             }
                             
                         }
-                        if(order.Volume == 0)
+                        if(orderVolume == 0)
                         {
                             order.Status = OrderStatus.Executing;
                             await _ordersRepository.UpdateAsync(order);
@@ -145,7 +144,7 @@ namespace DepthMarketTest.Services
                             {
                                 ProductId = order.ProductId,
                                 OrderId = order.Id,
-                                Volume = order.Volume,
+                                Volume = orderVolume,
                                 Price = order.Price,
                                 OnlyFullExecution = order.OnlyFullExecution,
                                 SubmissionTime = order.SubmissionTime
@@ -190,7 +189,7 @@ namespace DepthMarketTest.Services
             var candidatesList = new List<MarketModel>();
             foreach (var listItem in relevantMarketList)
             {
-                if (listItem.OnlyFullExecution)
+                if (listItem.OnlyFullExecution) // refactoring by doing if like in processing pull
                 {
                     if (existingVolume >= listItem.Volume)
                     {
