@@ -188,13 +188,17 @@ namespace DepthMarketTest.Services
             }
             return null;
         }
-        private async Task<MarketModel?> BidPartialExecSearchAsync(OrderModel model, List<MarketModel> relevantMarketList)
+        private MarketModel? BidPartialExecSearch(OrderModel model, ref List<MarketModel> relevantMarketList)
         {
+            var existingVolume = model.Volume;
+            var candidatesList = new List<MarketModel>().;
             foreach (var listItem in relevantMarketList)
             {
+
                 if (listItem.OnlyFullExecution)
                 {
-                    if(model.Volume >= listItem.Volume)
+
+                    if(existingVolume >= listItem.Volume)
                     {
                         return listItem;
                     }
