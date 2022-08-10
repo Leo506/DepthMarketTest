@@ -43,12 +43,11 @@ namespace DepthMarketTest.Repository
         
         public async Task<List<MarketModel>> GetRelevantAsksAsync(OrderModel model)
         {
-            var filter = Builders<MarketModel>.Filter.Lte("price", model.Price);
             // по id товара
             // price  меньше или равно
             // дата самые старые - самые первые
-            await _asksCollection.FindAsync(filter);
-            throw new NotImplementedException();
+            return await _asksCollection.Find(m => m.ProductId == model.ProductId && m.Price <= model.Price)
+                .SortBy(m => m.SubmissionTime).ToListAsync();
         }
     }
 }

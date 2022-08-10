@@ -47,7 +47,8 @@ namespace DepthMarketTest.Repository
             // по id товара
             // price больше или равно
             // дата самые старые - самые первые
-            throw new NotImplementedException();
+            return await _asksCollection.Find(m => m.ProductId == model.ProductId && m.Price >= model.Price)
+                .SortBy(m => m.SubmissionTime).ToListAsync();
         }
     }
 }
