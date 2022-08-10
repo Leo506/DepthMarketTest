@@ -4,7 +4,7 @@ namespace DepthMarketTest.Repository
 {
     public interface IAskMarketRepository
     {
-        Task<List<MarketModel>> GetRelevantBidsAsync(OrderModel model);
+        Task<List<MarketModel>> GetRelevantAsksAsync(OrderModel model);
         Task<List<MarketModel>> GetAllAsync();
         Task UpdateAsync(MarketModel orderToUpdate);
         Task<MarketModel> GetByIdAsync(string id);
