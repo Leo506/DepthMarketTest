@@ -44,6 +44,9 @@ namespace DepthMarketTest.Repository
 
         public async Task<List<MarketModel>> GetRelevantBidsAsync(OrderModel model)
         {
+            // по id товара
+            // price больше или равно
+            // дата самые старые - самые первые
             throw new NotImplementedException();
         }
     }

@@ -27,7 +27,7 @@ namespace DepthMarketTest.Services
                 var relevantBids = await _bidMarketRepository.GetRelevantBidsAsync(order);
                 if (order.OnlyFullExecution)
                 {
-                    var matchedMarketModel = BidFullExecSearch(order, ref relevantBids);
+                    var matchedMarketModel = BidFullExecSearch(order, relevantBids);
                     if(matchedMarketModel == null)
                     {   
                         order.Status = OrderStatus.Active;
@@ -59,7 +59,7 @@ namespace DepthMarketTest.Services
                         }
                         else
                         {
-                            var newVolume = matchedMarketModel.Volume - order.Volume;
+                            var newVolume = matchedMarketModel.Volume - order.Volume; 
                             if (newVolume != 0)
                             {
                                 
@@ -85,7 +85,7 @@ namespace DepthMarketTest.Services
                 }
                 else
                 {
-                    var matchedMarketModels = BidPartialExecSearch(order, ref relevantBids);
+                    var matchedMarketModels = BidPartialExecSearch(order, relevantBids);
                     if(!matchedMarketModels.Any())
                     {
                         //in separet method put logic of change status and add to market repo
@@ -166,7 +166,7 @@ namespace DepthMarketTest.Services
                 }
             }
         }
-        private MarketModel BidFullExecSearch(OrderModel model, ref List<MarketModel> relevantMarketList)
+        private MarketModel BidFullExecSearch(OrderModel model,  List<MarketModel> relevantMarketList)
         {
             foreach (var listItem in relevantMarketList)
             {
@@ -183,7 +183,7 @@ namespace DepthMarketTest.Services
             }
             return null;
         }
-        private List<MarketModel> BidPartialExecSearch(OrderModel model, ref List<MarketModel> relevantMarketList)
+        private List<MarketModel> BidPartialExecSearch(OrderModel model,  List<MarketModel> relevantMarketList)
         {
             var existingVolume = model.Volume;
             var candidatesList = new List<MarketModel>();
