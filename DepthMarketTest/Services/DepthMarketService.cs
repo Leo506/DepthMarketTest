@@ -174,7 +174,7 @@ namespace DepthMarketTest.Services
                             OnlyFullExecution = order.OnlyFullExecution,
                             SubmissionTime = order.SubmissionTime
                         };
-                        await _askMarketRepository.CreateNewAsync(marketModel);
+                        await _bidMarketRepository.CreateNewAsync(marketModel);
                     }
                     else
                     {
@@ -187,7 +187,7 @@ namespace DepthMarketTest.Services
 
                             await _ordersRepository.UpdateAsync(matchedOrder);
                             await _ordersRepository.UpdateAsync(order);
-                            await _bidMarketRepository.DeleteAsync(matchedOrder.Id);
+                            await _askMarketRepository.DeleteAsync(matchedOrder.Id);
                         }
                         else
                         {
@@ -196,7 +196,7 @@ namespace DepthMarketTest.Services
                             {
 
                                 matchedMarketModel.Volume = newVolume;
-                                await _bidMarketRepository.UpdateAsync(matchedMarketModel);
+                                await _askMarketRepository.UpdateAsync(matchedMarketModel);
 
                                 order.Status = OrderStatus.Executing;
                                 await _ordersRepository.UpdateAsync(order);
@@ -210,14 +210,14 @@ namespace DepthMarketTest.Services
 
                                 await _ordersRepository.UpdateAsync(matchedOrder);
                                 await _ordersRepository.UpdateAsync(order);
-                                await _bidMarketRepository.DeleteAsync(matchedOrder.Id);
+                                await _askMarketRepository.DeleteAsync(matchedOrder.Id);
                             }
                         }
                     }
                 }
                 else
                 {
-                    var matchedMarketModels = BidPartialExecSearch(order, relevantBids);
+                    var matchedMarketModels = BidPartialExecSearch(order, relevantAsks);
                     if (!matchedMarketModels.Any())
                     {
                         //in separet method put logic of change status and add to market repo
@@ -233,7 +233,7 @@ namespace DepthMarketTest.Services
                             OnlyFullExecution = order.OnlyFullExecution,
                             SubmissionTime = order.SubmissionTime
                         };
-                        await _askMarketRepository.CreateNewAsync(marketModel);
+                        await _bidMarketRepository.CreateNewAsync(marketModel);
                     }
                     else
                     {
@@ -247,7 +247,7 @@ namespace DepthMarketTest.Services
                                 await _ordersRepository.UpdateAsync(order);
 
                                 matchedMarketModel.Volume -= orderVolume;
-                                await _bidMarketRepository.UpdateAsync(matchedMarketModel);
+                                await _askMarketRepository.UpdateAsync(matchedMarketModel);
                                 // send in candidates
                             }
                             else
@@ -258,7 +258,7 @@ namespace DepthMarketTest.Services
                                 await _ordersRepository.UpdateAsync(matchedOrder);
                                 orderVolume -= matchedMarketModel.Volume;
                                 // send in candidates
-                                await _bidMarketRepository.DeleteAsync(matchedMarketModel.Id);
+                                await _askMarketRepository.DeleteAsync(matchedMarketModel.Id);
 
                             }
 
@@ -281,7 +281,7 @@ namespace DepthMarketTest.Services
                                 OnlyFullExecution = order.OnlyFullExecution,
                                 SubmissionTime = order.SubmissionTime
                             };
-                            await _askMarketRepository.CreateNewAsync(marketModel);
+                            await _bidMarketRepository.CreateNewAsync(marketModel);
                         }
                     }
                 }
@@ -334,7 +334,7 @@ namespace DepthMarketTest.Services
             }
             return candidatesList;
         }
-        private async Task<MarketModel> AskFullExecSearchAsync()
+        private MarketModel AskFullExecSearch(OrderModel model, List<MarketModel> relevantMarketList)
         {
             throw new NotImplementedException();
         }
